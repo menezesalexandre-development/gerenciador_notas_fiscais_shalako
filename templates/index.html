@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerenciamento de Notas Fiscais</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    form {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    form label {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    form input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    form input[type="date"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+      border-top-width: 18px;
+      padding-top: 0px;
+      padding-bottom: 0px;
+    }
+
+    .button_cad {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    form button:hover {
+      background-color: #0056b3;
+    }
+
+    #filtro {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    #lista-notas {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    #lista-notas li {
+      background-color: #fff;
+      padding: 20px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    #logo {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 150px;
+      /* Defina o tamanho da sua logo */
+      height: auto;
+      /* Para manter a proporção */
+      z-index: 999;
+      /* Garante que a logo esteja acima de outros elementos */
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Gerenciamento de Notas Fiscais</h1>
+  <img id="logo" src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+  <!-- Formulário para cadastrar nova nota fiscal -->
+  <form id="formulario" method="POST" style="display: flex;">
+    <div style="flex: 1; padding-right: 10px;">
+      <div style="display: flex; justify-content: space-between;">
+        <div style="flex: 1; padding-right: 10px;">
+          <label for="empresa">Empresa:</label>
+          <input type="text" id="empresa" name="empresa" required style="width: 100%;">
+        </div>
+        <div style="flex: 1; padding-left: 10px;">
+          <label for="hospede">Hospede:</label>
+          <input type="text" id="hospede" name="hospede" required style="width: 100%;">
+        </div>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <div style="flex: 1; padding-right: 10px;">
+          <label for="numero">Número:</label>
+          <input type="text" id="numero" name="numero" required style="width: 100%;">
+        </div>
+        <div style="flex: 1; padding-left: 10px;">
+          <label for="valor_total">Valor Total:</label>
+          <input type="text" id="valor_total" name="valor_total" required style="width: 100%;">
+        </div>
+      </div>
+    </div>
+    <div style="flex: 1; padding-left: 10px;">
+      <div style="display: flex; justify-content: space-between;">
+        <div style="flex: 1; padding-right: 10px;">
+          <label for="data">Data da Nota Fiscal:</label>
+          <input type="date" id="data" name="data" required style="width: 100%;">
+        </div>
+        <div style="flex: 1; padding-left: 10px;">
+          <label for="tipo_tarifa">Tipo de Tarifa:</label>
+          <div style="display: flex; justify-content: space-between;">
+            <div style="flex: 1; padding-right: 10px;">
+              <input type="radio" id="comissionada" name="tipo_tarifa" value="comissionada" required>
+              <label for="comissionada">Comissionada</label>
+            </div>
+            <div style="flex: 1; padding-left: 10px;">
+              <input type="radio" id="net" name="tipo_tarifa" value="net" required>
+              <label for="net">Net</label>
+            </div>
+          </div>
+        </div>
+      </div>      
+      <div style="display: flex; justify-content: space-between;">
+        <div style="flex: 1; padding-right: 10px;">
+          <label for="inicio_hospedagem">Início da Hospedagem:</label>
+          <input type="date" id="inicio_hospedagem" name="inicio_hospedagem" required style="width: 100%;">
+        </div>
+        <div style="flex: 1; padding-left: 10px;">
+          <label for="fim_hospedagem">Fim da Hospedagem:</label>
+          <input type="date" id="fim_hospedagem" name="fim_hospedagem" required style="width: 100%;">
+        </div>
+      </div>      
+    </div>    
+  </form>
+  <button type="submit" form="formulario" class="button_cad">Cadastrar Nota Fiscal</button>
+
+  <!-- Campo de filtro -->
+  <input type="text" id="filtro" placeholder="Digite para filtrar...">
+
+  <!-- Lista de notas fiscais cadastradas -->
+  <table id="lista-notas" style="width: 100%;">
+    <thead>
+      <tr>
+        <th>Empresa</th>
+        <th>Hospede</th>
+        <th>Número</th>
+        <th>Data</th>
+        <th>Início da Hospedagem</th>
+        <th>Fim da Hospedagem</th>
+        <th>Tipo de Tarifa</th>
+        <th>Valor Total</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for nota in notas %}
+      <tr>
+        <td>{{ nota['empresa'] }}</td>
+        <td>{{ nota['hospede'] }}</td>
+        <td class="numero" align="center">{{ nota['numero'] }}</td>
+        <td align="center">{{ nota['data'] }}</td>
+        <td align="center">{{ nota['inicio_hospedagem'] }}</td>
+        <td align="center">{{ nota['fim_hospedagem'] }}</td>
+        <td align="right">{{ nota['tipo_tarifa'] }}</td>
+        <td class="valor-total" align="right">{{ nota['valor_total'] }}</td>
+        <td align="right"><button class="excluir-btn">Excluir</button></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+  <script>
+    function formatarData (data) {
+      var dataFormatada = new Date(data);
+      var dia = dataFormatada.getDate();
+      var mes = dataFormatada.getMonth() + 1; // Os meses começam do zero
+      var ano = dataFormatada.getFullYear();
+
+      // Adiciona um zero à esquerda se o dia ou o mês for menor que 10
+      if (dia < 10) {
+        dia = '0' + dia;
+      }
+      if (mes < 10) {
+        mes = '0' + mes;
+      }
+
+      return dia + '/' + mes + '/' + ano;
+    }
+
+    function formatarValorTotal (valor) {
+      return parseFloat(valor).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      var camposData = document.querySelectorAll('input[type="date"]');
+      camposData.forEach(function (campo) {
+        campo.value = formatarData(campo.value);
+      });
+    });
+
+    document.getElementById('formulario').addEventListener('submit', function (event) {
+      event.preventDefault();
+      var formData = new FormData(this);
+      formData.set('data', formatarData(formData.get('data')));
+      formData.set('inicio_hospedagem', formatarData(formData.get('inicio_hospedagem')));
+      formData.set('fim_hospedagem', formatarData(formData.get('fim_hospedagem')));
+      formData.set('tipo_tarifa', formData.get('tipo_tarifa'));
+      console.log(formData.get('valor_total'))
+      fetch('/', {
+        method: 'POST',
+        body: formData
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Erro ao cadastrar nota fiscal: ' + response.status);
+          }
+          var valorTotalFormatado = formData.get('valor_total');
+          // Atualizar a tabela de notas fiscais com a nova linha
+          var tabelaNotas = document.getElementById('lista-notas').getElementsByTagName('tbody')[0];
+          var novaLinha = document.createElement('tr');
+          novaLinha.innerHTML = `<td>${formData.get('empresa')}</td>
+                             <td>${formData.get('hospede')}</td>
+                             <td class="numero" align="center">${formData.get('numero')}</td>
+                             <td align="center">${formData.get('data')}</td>
+                             <td align="center">${formData.get('inicio_hospedagem')}</td>
+                             <td align="center">${formData.get('fim_hospedagem')}</td>
+                             <td align="right">${formData.get('tipo_tarifa')}</td>
+                             <td class="valor-total" align="right">${valorTotalFormatado}</td>                             
+                             <td align="right"><button class="excluir-btn">Excluir</button></td>`;
+          tabelaNotas.appendChild(novaLinha);
+          // Limpar o formulário após o cadastro
+          document.getElementById('formulario').reset();
+        })
+        .catch(error => console.error(error));
+    });
+
+    // Adicionar evento de input para o campo de filtro
+    document.getElementById('filtro').addEventListener('input', function () {
+      var filtro = this.value.toUpperCase();
+      var listaNotas = document.getElementById('lista-notas');
+      var notas = listaNotas.getElementsByTagName('tr'); // Alterado para 'tr' para pegar as linhas da tabela
+      for (var i = 0; i < notas.length; i++) {
+        var textoNota = notas[i].textContent || notas[i].innerText;
+        if (textoNota.toUpperCase().indexOf(filtro) > -1) {
+          notas[i].style.display = "";
+        } else {
+          notas[i].style.display = "none";
+        }
+      }
+    });
+
+    document.addEventListener('click', function (event) {
+      if (event.target.classList.contains('excluir-btn')) {
+        var confirmarExclusao = confirm('Tem certeza que deseja excluir esta nota fiscal?');
+        // Verificar se o usuário confirmou a exclusão
+        if (confirmarExclusao) {
+          var tr = event.target.closest('tr'); // Encontrar a linha da tabela mais próxima
+          console.log(tr); // Verificar se o elemento tr foi encontrado
+          var numeroNotaElement = tr.querySelector('.numero');
+          console.log(numeroNotaElement); // Verificar se o elemento com a classe .numero foi encontrado
+          var numeroNota = numeroNotaElement.textContent;
+          fetch(`/?numero=${numeroNota}`, {
+            method: 'DELETE'
+          })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Erro ao excluir nota fiscal: ' + response.status);
+              }
+              tr.remove(); // Remover o item da tabela após a exclusão bem-sucedida
+            })
+            .catch(error => console.error(error));
+        }
+      }
+    });
+
+    document.getElementById('valor_total').addEventListener('input', function () {
+      var valorDigitado = this.value.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
+      var valorNumerico = parseFloat(valorDigitado) / 100; // Converta para número e divida por 100 para representar em reais
+      this.value = formatarValorTotal(valorNumerico); // Formata o valor como um valor monetário
+    });
+
+  </script>
+</body>
+
+</html>
